@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <math.h>
 
 using namespace std;
 
@@ -104,53 +105,82 @@ void cards_input(int collection_amount[], int collection_x[], int collection_y[]
  
 
 void cards_display(int collection_amount[], int collection_x[], int collection_y[], int total, int dime[], string diff) {
-	string xline;
-	string yline;
+	string x_line = " ";
+	string y_line;
+	string y_grid = "--";
 	string y_offset;
-	string card;
-	int per_row = floor(100 / (dime[0] + 5));
+	string card = "|";
+	int per_row = floor(100 / ((dime[0]*2) + 6));
 	int rows = floor(total / per_row);
 	int remainder = total % per_row;
+
+	// Set up cards to print
 	for (int i = 0; i < dime[0]; i++) {
 		card += collection_x[i];
+		card.append("|");
 	}
-	for (int y = 0; y < (dime[0] + 5); y++) {
+	for (int y = 0; y < dime[0]; y++) {
+		y_offset += " |";
+		y_grid += "--";
+	}
+	for (int y = 0; y < 5; y++) {
 		y_offset += " ";
+		y_grid += " ";
 	}
+	for (int i = 0; i < per_row; i++) {
+		x_line += card + "      ";
+	}
+	
+	// Print the cards
+	cout << endl;
 	for (int row = 0; row < rows; row++) {
-		xline = " ";
+		cout << x_line << setw(100) << endl;
 		cout << setw(0);
 		for (int i = 0; i < per_row; i++) {
-			xline += card + "     ";
+			cout << y_grid;
 		}
-		cout << xline << setw(100) << endl;
+		cout << endl;
 		for (int y = 0; y < dime[0]; y++) {
-			yline = collection_y[y];
-			for (int y_offset = 0; y_offset < (dime[0] + 5); y_offset++) {
-				yline += " ";
+			y_line = collection_y[y];
+			y_line.append("|");
+			y_line.append(y_offset);
+			for (int i = 0; i < per_row; i++) {
+				cout << y_line;
 			}
-			cout << yline << setw(100) << endl;
+			cout << endl;
+			for (int i = 0; i < per_row; i++) {
+				cout << y_grid;
+			}
+			cout << endl;
 		}
+		cout << endl;
 	}
-	xline = " ";
-	cout << setw(0);
-	for (int rem = 0; rem < remainder; rem++) {
-		xline += card + "     ";
-	}
-	cout << xline << setw(100) << endl;
-	cout << setw(0);
-	yline = "";
-	for (int y = 0; y < dime[0]; y++) {
-		y_offset = "";
-		for (int y2 = 0; y2 < (dime[0] + 5); y2++) {
-			y_offset += " ";
-		}
+	// Check for any remaining cards, if there are, print them
+	if (remainder > 0) {
+		x_line = " ";
+		cout << setw(0);
 		for (int rem = 0; rem < remainder; rem++) {
-			yline += collection_y[y];
-			yline.append(y_offset);
-			y_offset.erase(y_offset.end() - 2, y_offset.end());
+			x_line += card + "     ";
 		}
-		cout << yline << endl;
+		cout << x_line << setw(100) << endl;
+		cout << setw(0);
+		for (int i = 0; i < remainder; i++) {
+			cout << y_grid;
+		}
+		cout << endl;
+		for (int y = 0; y < dime[0]; y++) {
+			y_line = collection_y[y];
+			y_line.append("|");
+			y_line.append(y_offset);
+			for (int rem = 0; rem < remainder; rem++) {
+				cout << y_line;
+			}
+			cout << endl;
+			for (int i = 0; i < remainder; i++) {
+				cout << y_grid;
+			}
+			cout << endl;
+		}
 	}
 }
 
@@ -169,6 +199,10 @@ int main() {
 	user_input(cards_total, card_difficulty, cards_dim);
 	cards_input(cards_collection[0], cards_collection[1], cards_collection[2], cards_total, cards_dim, card_difficulty);
 	cards_display(cards_collection[0], cards_collection[1], cards_collection[2], cards_total, cards_dim, card_difficulty);
+
+	string input;
+	cout << "Press Enter to Exit...";
+	getline(cin, input);
 
 	return 0;
 }
