@@ -71,8 +71,7 @@ void user_input(int &cards, string &diff, int dime[]) {
 }
 
 
-void cards_input(int collection_amount[], int collection_x[], int collection_y[], int total, int dime[], string diff) {
-	collection_amount[0] = total;
+void cards_input(int** collection, int total, int dime[], string diff) {
 	int window_size;
 	int window_start;
 	if (diff == "Easy") {
@@ -95,28 +94,32 @@ void cards_input(int collection_amount[], int collection_x[], int collection_y[]
 		window_start = rand() % 126 + 33;
 		wrap(window_start, window_size, 33, 126);
 	}
+	for (int i = 0; i < 3; i++) {
+		collection[i] = new int[dime[0]];
+	}
+	collection[0][0] = total;
 	for (int i = 0; i < dime[0]; i++) {
-		collection_x[i] = rand() % window_size + window_start;
+		collection[1][i] = rand() % window_size + window_start;
 	}
 	for (int i = 0; i < dime[1]; i++) {
-		collection_y[i] = rand() % window_size + window_start;
+		collection[2][i] = rand() % window_size + window_start;
 	}
 }
- 
 
-void cards_display(int collection_amount[], int collection_x[], int collection_y[], int total, int dime[], string diff) {
+
+void cards_display(int** collection, int dime[]) {
 	string x_line = " ";
 	string y_line;
 	string y_grid = "--";
 	string y_offset;
 	string card = "|";
-	int per_row = floor(100 / ((dime[0]*2) + 6));
-	int rows = floor(total / per_row);
-	int remainder = total % per_row;
+	int per_row = floor(100 / ((dime[0] * 2) + 6));
+	int rows = floor(collection[0][0] / per_row);
+	int remainder = collection[0][0] % per_row;
 
 	// Set up cards to print
 	for (int i = 0; i < dime[0]; i++) {
-		card += collection_x[i];
+		card += collection[1][i];
 		card.append("|");
 	}
 	for (int y = 0; y < dime[0]; y++) {
@@ -130,7 +133,7 @@ void cards_display(int collection_amount[], int collection_x[], int collection_y
 	for (int i = 0; i < per_row; i++) {
 		x_line += card + "      ";
 	}
-	
+
 	// Print the cards
 	cout << endl;
 	for (int row = 0; row < rows; row++) {
@@ -141,7 +144,7 @@ void cards_display(int collection_amount[], int collection_x[], int collection_y
 		}
 		cout << endl;
 		for (int y = 0; y < dime[0]; y++) {
-			y_line = collection_y[y];
+			y_line = collection[2][y];
 			y_line.append("|");
 			y_line.append(y_offset);
 			for (int i = 0; i < per_row; i++) {
@@ -169,7 +172,7 @@ void cards_display(int collection_amount[], int collection_x[], int collection_y
 		}
 		cout << endl;
 		for (int y = 0; y < dime[0]; y++) {
-			y_line = collection_y[y];
+			y_line = collection[2][y];
 			y_line.append("|");
 			y_line.append(y_offset);
 			for (int rem = 0; rem < remainder; rem++) {
@@ -190,18 +193,15 @@ int main() {
 	int cards_total = 3;
 	int cards_dim[2] = { 12, 12 };
 	string card_difficulty = "Easy";
-	int cards_collection[3][24] = {
-		{3},
-		{36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36},
-		{36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36}
-	};
+	int** cards_collection = new int*[3];
 
 	user_input(cards_total, card_difficulty, cards_dim);
-	cards_input(cards_collection[0], cards_collection[1], cards_collection[2], cards_total, cards_dim, card_difficulty);
-	cards_display(cards_collection[0], cards_collection[1], cards_collection[2], cards_total, cards_dim, card_difficulty);
+	cards_input(cards_collection, cards_total, cards_dim, card_difficulty);
+	cards_display(cards_collection, cards_dim);
 
+	// While running code in IDE the window will not close automatically, running the .exe will. This prevents it from closing.
 	string input;
-	cout << "Press Enter to Exit...";
+	cout << "\nPress Enter to Exit...";
 	getline(cin, input);
 
 	return 0;
