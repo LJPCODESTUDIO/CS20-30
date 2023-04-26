@@ -20,13 +20,15 @@ private:
     int selected_slot = 0;
 public:
     ~wheel() {
-        delete wheel_p;
+        delete[] wheel_p;
+        wheel_p = nullptr;
     }
 
     void print_wheel() {
         for (int i = 0; i < length; i++) {
-            cout << char(wheel_p[i]) << endl;
+            cout << char(wheel_p[i]);
         }
+        cout << endl;
     }
 
     void set_slot_to(int index, int new_val) {
@@ -39,7 +41,7 @@ public:
 
    int get_slot_at(int index) {
         if (index > length - 1 || index < 0) {
-            cout << "That is not a valid slot(0-" << length - 1 << ")\n";
+            cout << index << " is not a valid slot(0-" << length - 1 << ")\n";
             return 0;
         }
         
@@ -52,7 +54,6 @@ public:
     }
     
     void make_wheel(int size) {
-        srand((unsigned)time(0));
         length = size;
 
         if (length > 7) {
@@ -122,7 +123,7 @@ void get_validated_user_input(float &wager) {
 }
 
 
-void make_wheels(wheel &wheel_1, wheel &wheel_2, wheel &wheel_3, float wager) {
+void make_wheels(wheel& wheel_1, wheel& wheel_2, wheel& wheel_3, float wager) {
     int ascii[5] = { 35, 36, 37, 38, 64 };
     int ranval;
 
@@ -155,8 +156,9 @@ void update_balance(float& savings, float winnings) {
 }
 
 
-void check_calculate_win(int slots[], float wager, float &savings, wheel wheel_1, wheel wheel_2, wheel wheel_3) {
+void check_calculate_win(int slots[], float wager, float &savings, wheel& wheel_1, wheel& wheel_2, wheel& wheel_3) {
     float winnings = 0;
+    last_win++;
     cout << " /=========\\" << endl;
     cout << "/===SLOTS===\\" << endl;
     cout << "|===========|" << endl;
@@ -176,21 +178,20 @@ void check_calculate_win(int slots[], float wager, float &savings, wheel wheel_1
 
     for (int i = -1; i < 2; i++) {
         if (wager == 1) {
-            if (wheel_1.get_slot_at(wrap(slots[0] + i, 0, 4)) == wheel_2.get_slot_at(wrap(slots[1] + i, 0, 5)) == wheel_3.get_slot_at(wrap(slots[2] + i, 0, 6))) {
+            if (wheel_1.get_slot_at(wrap(slots[0] + i, 0, 4)) == wheel_2.get_slot_at(wrap(slots[1] + i, 0, 5)) && wheel_2.get_slot_at(wrap(slots[1] + i, 0, 5)) == wheel_3.get_slot_at(wrap(slots[2] + i, 0, 6))) {
                 last_win = 0;
                 wins++;
                 winnings += 20;
             }
         }
         else {
-            if (wheel_1.get_slot_at(wrap(slots[0] + i, 0, 4)) == wheel_2.get_slot_at(wrap(slots[1] + i, 0, 4)) == wheel_3.get_slot_at(wrap(slots[2] + i, 0, 4))) {
+            if (wheel_1.get_slot_at(wrap(slots[0] + i, 0, 4)) == wheel_2.get_slot_at(wrap(slots[1] + i, 0, 4)) && wheel_2.get_slot_at(wrap(slots[1] + i, 0, 4)) == wheel_3.get_slot_at(wrap(slots[2] + i, 0, 4))) {
                 last_win = 0;
                 wins++;
                 winnings += 10;
             }
         }
     }
-
     if (last_win > 4) {
         last_win = 0;
         if (wager == 1) {
@@ -200,6 +201,7 @@ void check_calculate_win(int slots[], float wager, float &savings, wheel wheel_1
             winnings++;
         }
     }
+    update_balance(savings, winnings);
 }
 
 
@@ -230,12 +232,15 @@ int main()
         wheel wheel_3;
         if (initial) {
             get_validated_user_input(chosen_wager);
+            initial = false;
         }
         make_wheels(wheel_1, wheel_2, wheel_3, chosen_wager);
         spin_wheels(wheel_1, wheel_2, wheel_3, chosen_wager, retirement_savings_balance);
         cout << "\nSavings = " << retirement_savings_balance << endl;
         cout << "Spins = " << spins << endl;
         cout << "Wins = " << wins << endl;
+        valid = false;
+        input = "";
         while (valid == false) {
             cout << "\nDo you want to (p)lay again, (c)hange your bet, or (l)eave the machine? ";
             getline(cin, input);
@@ -249,12 +254,13 @@ int main()
         }
         if (input == "c") {
             get_validated_user_input(chosen_wager);
-            make_wheels(wheel_1, wheel_2, wheel_3, chosen_wager);
         }
         if (input == "l") {
             run = false;
-            break;
         }
+
+        cout << "Press Enter to exit...";
+        getline(cin, input);
     }
 
     return 0;
